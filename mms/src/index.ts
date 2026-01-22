@@ -1,4 +1,25 @@
 // MMS - Motor de Animación Minimalista
-// TODO: Implementar motor de animación
+// VM-based animation engine
 
-export {};
+// Tipos
+export type {
+  Value,
+  Register,
+  VMContext,
+  Instruction,
+  OpcodeDefinition,
+  Program,
+  CapturedTrace,
+} from './types';
+
+// VM
+export { VM, createVM } from './vm';
+
+// Registry
+export { registry, defineOpcode } from './registry';
+
+// Optimizer
+export { analyzeTrace, compileTrace, foldConstants, eliminateDeadCode } from './optimizer';
+
+// Opcodes (cargar bajo demanda)
+export { mathOpcodes, animOpcodes } from './opcodes';
