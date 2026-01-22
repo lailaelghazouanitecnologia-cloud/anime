@@ -1,54 +1,57 @@
-// MMS VM - Tipos base
+// MMS - Tipos
 
-/** Valor numérico de la VM */
-export type Value = number;
+export type EasingFunction = (t: number) => number;
 
-/** Registro de la VM (almacena valores) */
-export interface Register {
-  value: Value;
-  dirty: boolean; // marcado si cambió
+export type Target = HTMLElement | SVGElement | object;
+export type Targets = Target | Target[] | NodeList | string;
+
+export type PropertyValue = number | string | [number | string, number | string];
+export type FunctionValue = (target: Target, index: number, total: number) => PropertyValue;
+
+export interface AnimationOptions {
+  targets: Targets;
+  duration?: number | FunctionValue;
+  delay?: number | FunctionValue;
+  easing?: string | EasingFunction;
+  loop?: number | boolean;
+  direction?: 'normal' | 'reverse' | 'alternate';
+  autoplay?: boolean;
+
+  // Callbacks
+  onBegin?: (anim: Animation) => void;
+  onUpdate?: (anim: Animation) => void;
+  onComplete?: (anim: Animation) => void;
+  onLoop?: (anim: Animation) => void;
+
+  // Propiedades a animar (dinámicas)
+  [property: string]: unknown;
 }
 
-/** Contexto de ejecución */
-export interface VMContext {
-  registers: Map<string, Register>;
-  time: number;
-  deltaTime: number;
-  frame: number;
+export interface Tween {
+  target: Target;
+  property: string;
+  from: number;
+  to: number;
+  unit: string;
+  duration: number;
+  delay: number;
+  easing: EasingFunction;
 }
 
-/** Instrucción de la VM */
-export interface Instruction {
-  opcode: string;
-  args: Value[];
-  target?: string; // registro destino
-  sources?: string[]; // registros fuente
-}
+export interface Animation {
+  // Estado
+  paused: boolean;
+  progress: number;
+  currentTime: number;
+  duration: number;
 
-/** Definición de un Opcode */
-export interface OpcodeDefinition {
-  name: string;
-  execute: (ctx: VMContext, args: Value[], sources: Value[]) => Value;
-  /** Para optimización: si es puro (sin side effects) */
-  pure?: boolean;
-  /** Número de argumentos esperados */
-  arity?: number;
-}
+  // Controles
+  play(): Animation;
+  pause(): Animation;
+  restart(): Animation;
+  reverse(): Animation;
+  seek(time: number): Animation;
 
-/** Programa compilado */
-export interface Program {
-  instructions: Instruction[];
-  /** Registros usados */
-  usedRegisters: Set<string>;
-  /** Opcodes requeridos */
-  requiredOpcodes: Set<string>;
-}
-
-/** Resultado de captura para optimización */
-export interface CapturedTrace {
-  instructions: Instruction[];
-  /** Valores constantes detectados */
-  constants: Map<string, Value>;
-  /** Instrucciones que pueden eliminarse */
-  deadCode: number[];
+  // Info
+  completed: boolean;
 }

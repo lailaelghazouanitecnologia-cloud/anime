@@ -1,25 +1,27 @@
 // MMS - Motor de Animación Minimalista
-// VM-based animation engine
+// Clon ligero de anime.js
+
+// Función principal
+export { animate } from './animate';
+
+// Easings
+export { easings, getEasing } from './easings';
+export * from './easings';
+
+// Utilidades
+export { stagger, random, mapRange, clamp, lerp } from './utils';
 
 // Tipos
 export type {
-  Value,
-  Register,
-  VMContext,
-  Instruction,
-  OpcodeDefinition,
-  Program,
-  CapturedTrace,
+  Animation,
+  AnimationOptions,
+  Target,
+  Targets,
+  Tween,
+  EasingFunction,
+  PropertyValue,
+  FunctionValue,
 } from './types';
 
-// VM
-export { VM, createVM } from './vm';
-
-// Registry
-export { registry, defineOpcode } from './registry';
-
-// Optimizer
-export { analyzeTrace, compileTrace, foldConstants, eliminateDeadCode } from './optimizer';
-
-// Opcodes (cargar bajo demanda)
-export { mathOpcodes, animOpcodes } from './opcodes';
+// Engine (para uso avanzado)
+export { engine } from './engine';
