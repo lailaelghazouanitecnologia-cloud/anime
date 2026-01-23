@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout - Photo Gallery Example</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      background: #111;
+      color: white;
+    }
+
+    h1 { margin-bottom: 10px; }
+    p { color: #888; margin-bottom: 20px; }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover { background: #444; }
+    button.active { background: #667eea; }
+
+    .gallery {
+      display: grid;
+      gap: 10px;
+      transition: grid-template-columns 0s;
+    }
+
+    .gallery.cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .gallery.cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .gallery.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .gallery.cols-5 { grid-template-columns: repeat(5, 1fr); }
+
+    .gallery-item {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .gallery-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-item .overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
+      display: flex;
+      align-items: flex-end;
+      padding: 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .gallery-item:hover .overlay { opacity: 1; }
+
+    .gallery-item.featured {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    /* Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+    }
+
+    .modal.active { display: flex; }
+
+    .modal img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 8px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: transparent;
+      font-size: 30px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Photo Gallery with Layout Animations</h1>
+  <p>Click images to feature them, use controls to change grid layout</p>
+
+  <div class="controls">
+    <button data-cols="2">2 Columns</button>
+    <button data-cols="3" class="active">3 Columns</button>
+    <button data-cols="4">4 Columns</button>
+    <button data-cols="5">5 Columns</button>
+    <button id="shuffleBtn">Shuffle</button>
+    <button id="sortBtn">Sort by ID</button>
+  </div>
+
+  <div class="gallery cols-3" id="gallery"></div>
+
+  <div class="modal" id="modal">
+    <button class="modal-close">×</button>
+    <img src="" alt="">
+  </div>
+
+  <script type="module">
+    import { createLayout } from '../src/layout/index.ts';
+
+    const gallery = document.getElementById('gallery');
+    const modal = document.getElementById('modal');
+
+    // Generate placeholder images
+    const images = Array.from({ length: 12 }, (_, i) => ({
+      id: i + 1,
+      // Using picsum.photos for placeholder images
+      url: `https://picsum.photos/400/400?random=${i + 1}`,
+      title: `Photo ${i + 1}`,
+    }));
+
+    // Create layout instance
+    const layout = createLayout('#gallery', {
+      children: '.gallery-item',
+      duration: 600,
+      ease: 'outExpo',
+      enterFrom: {
+        opacity: 0,
+        scale: 0.5,
+      },
+      leaveTo: {
+        opacity: 0,
+        scale: 0.5,
+      },
+      swapAt: {
+        opacity: 0.5,
+        scale: 0.95,
+      },
+    });
+
+    function renderGallery() {
+      gallery.innerHTML = images.map(img => `
+        <div class="gallery-item" data-id="${img.id}">
+          <img src="${img.url}" alt="${img.title}" loading="lazy">
+          <div class="overlay">${img.title}</div>
+        </div>
+      `).join('');
+    }
+
+    // Column controls
+    document.querySelectorAll('[data-cols]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        layout.record();
+
+        document.querySelectorAll('[data-cols]').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        gallery.className = `gallery cols-${btn.dataset.cols}`;
+
+        layout.animate();
+      });
+    });
+
+    // Feature image on click
+    gallery.addEventListener('click', e => {
+      const item = e.target.closest('.gallery-item');
+      if (!item) return;
+
+      // If already featured, open modal
+      if (item.classList.contains('featured')) {
+        const img = item.querySelector('img');
+        modal.querySelector('img').src = img.src;
+        modal.classList.add('active');
+        return;
+      }
+
+      layout.record();
+
+      // Remove featured from other items
+      document.querySelectorAll('.gallery-item.featured').forEach(el => {
+        el.classList.remove('featured');
+      });
+
+      // Toggle featured on clicked item
+      item.classList.add('featured');
+
+      // Move featured item to start
+      gallery.prepend(item);
+
+      layout.animate();
+    });
+
+    // Close modal
+    modal.addEventListener('click', e => {
+      if (e.target === modal || e.target.classList.contains('modal-close')) {
+        modal.classList.remove('active');
+      }
+    });
+
+    // Shuffle
+    document.getElementById('shuffleBtn').addEventListener('click', () => {
+      layout.record();
+
+      for (let i = images.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [images[i], images[j]] = [images[j], images[i]];
+      }
+      renderGallery();
+
+      layout.animate();
+    });
+
+    // Sort
+    document.getElementById('sortBtn').addEventListener('click', () => {
+      layout.record();
+
+      images.sort((a, b) => a.id - b.id);
+      renderGallery();
+
+      layout.animate();
+    });
+
+    // Initial render
+    renderGallery();
+  </script>
+</body>
+</html>

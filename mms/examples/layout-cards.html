@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout - Cards with Stagger</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, sans-serif;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: white;
+      min-height: 100vh;
+    }
+
+    h1 { margin-bottom: 20px; }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    button {
+      padding: 12px 24px;
+      border: none;
+      border-radius: 8px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    button:hover { background: #5a6fd6; }
+
+    .card-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 20px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .card-avatar {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 18px;
+    }
+
+    .card-name { font-weight: 600; font-size: 18px; }
+    .card-role { color: #888; font-size: 14px; }
+
+    .card-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .stat { text-align: center; }
+    .stat-value { font-size: 24px; font-weight: bold; color: #667eea; }
+    .stat-label { font-size: 12px; color: #888; }
+
+    .card-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .card-btn {
+      flex: 1;
+      padding: 10px;
+      background: rgba(255, 255, 255, 0.1);
+      font-size: 12px;
+    }
+
+    .card-btn.primary { background: #667eea; }
+    .card-btn.danger { background: #ef4444; }
+  </style>
+</head>
+<body>
+  <h1>Team Cards with Layout Animations</h1>
+
+  <div class="controls">
+    <button id="addBtn">Add Member</button>
+    <button id="shuffleBtn">Shuffle</button>
+    <button id="sortNameBtn">Sort by Name</button>
+    <button id="sortProjectsBtn">Sort by Projects</button>
+    <button id="removeHalfBtn">Remove Half</button>
+    <button id="resetBtn">Reset</button>
+  </div>
+
+  <div class="card-grid" id="cardGrid"></div>
+
+  <script type="module">
+    import { createLayout } from '../src/layout/index.ts';
+    import { stagger } from '../src/utils/stagger.ts';
+
+    const cardGrid = document.getElementById('cardGrid');
+
+    const initialTeam = [
+      { id: 1, name: 'Alice Johnson', role: 'Frontend Dev', projects: 12, reviews: 48, commits: 234 },
+      { id: 2, name: 'Bob Smith', role: 'Backend Dev', projects: 8, reviews: 92, commits: 567 },
+      { id: 3, name: 'Carol White', role: 'Designer', projects: 15, reviews: 23, commits: 89 },
+      { id: 4, name: 'David Brown', role: 'DevOps', projects: 6, reviews: 34, commits: 345 },
+      { id: 5, name: 'Eva Martinez', role: 'Full Stack', projects: 10, reviews: 67, commits: 432 },
+      { id: 6, name: 'Frank Wilson', role: 'QA Engineer', projects: 9, reviews: 156, commits: 123 },
+    ];
+
+    let team = [...initialTeam];
+    let nextId = 7;
+
+    const names = ['Grace', 'Henry', 'Ivy', 'Jack', 'Kate', 'Leo', 'Mia', 'Noah', 'Olivia', 'Peter'];
+    const roles = ['Frontend Dev', 'Backend Dev', 'Full Stack', 'Designer', 'DevOps', 'QA Engineer'];
+
+    // Create layout with staggered animations
+    const layout = createLayout('#cardGrid', {
+      children: '.card',
+      duration: 500,
+      ease: 'outExpo',
+      delay: stagger(50),  // Stagger each card by 50ms
+      enterFrom: {
+        opacity: 0,
+        translateY: 30,
+        scale: 0.9,
+      },
+      leaveTo: {
+        opacity: 0,
+        translateY: -30,
+        scale: 0.9,
+      },
+    });
+
+    function renderCards() {
+      cardGrid.innerHTML = team.map(member => `
+        <div class="card" data-id="${member.id}">
+          <div class="card-header">
+            <div class="card-avatar">${member.name.charAt(0)}</div>
+            <div>
+              <div class="card-name">${member.name}</div>
+              <div class="card-role">${member.role}</div>
+            </div>
+          </div>
+          <div class="card-stats">
+            <div class="stat">
+              <div class="stat-value">${member.projects}</div>
+              <div class="stat-label">Projects</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">${member.reviews}</div>
+              <div class="stat-label">Reviews</div>
+            </div>
+            <div class="stat">
+              <div class="stat-value">${member.commits}</div>
+              <div class="stat-label">Commits</div>
+            </div>
+          </div>
+          <div class="card-actions">
+            <button class="card-btn primary">View Profile</button>
+            <button class="card-btn danger" data-action="remove">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Add member
+    document.getElementById('addBtn').addEventListener('click', () => {
+      layout.record();
+
+      const randomName = names[Math.floor(Math.random() * names.length)];
+      const randomRole = roles[Math.floor(Math.random() * roles.length)];
+
+      team.unshift({
+        id: nextId++,
+        name: `${randomName} New`,
+        role: randomRole,
+        projects: Math.floor(Math.random() * 15) + 1,
+        reviews: Math.floor(Math.random() * 100) + 10,
+        commits: Math.floor(Math.random() * 500) + 50,
+      });
+
+      renderCards();
+      layout.animate();
+    });
+
+    // Shuffle
+    document.getElementById('shuffleBtn').addEventListener('click', () => {
+      layout.record();
+
+      for (let i = team.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [team[i], team[j]] = [team[j], team[i]];
+      }
+
+      renderCards();
+      layout.animate();
+    });
+
+    // Sort by name
+    document.getElementById('sortNameBtn').addEventListener('click', () => {
+      layout.record();
+      team.sort((a, b) => a.name.localeCompare(b.name));
+      renderCards();
+      layout.animate();
+    });
+
+    // Sort by projects
+    document.getElementById('sortProjectsBtn').addEventListener('click', () => {
+      layout.record();
+      team.sort((a, b) => b.projects - a.projects);
+      renderCards();
+      layout.animate();
+    });
+
+    // Remove half
+    document.getElementById('removeHalfBtn').addEventListener('click', () => {
+      if (team.length <= 1) return;
+      layout.record();
+      team = team.slice(0, Math.ceil(team.length / 2));
+      renderCards();
+      layout.animate();
+    });
+
+    // Reset
+    document.getElementById('resetBtn').addEventListener('click', () => {
+      layout.record();
+      team = [...initialTeam];
+      nextId = 7;
+      renderCards();
+      layout.animate();
+    });
+
+    // Remove individual card
+    cardGrid.addEventListener('click', e => {
+      if (e.target.dataset.action === 'remove') {
+        const card = e.target.closest('.card');
+        const id = parseInt(card.dataset.id);
+
+        layout.record();
+        team = team.filter(m => m.id !== id);
+        renderCards();
+        layout.animate();
+      }
+    });
+
+    // Initial render
+    renderCards();
+  </script>
+</body>
+</html>

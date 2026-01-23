@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MMS - Layout Examples</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: system-ui, -apple-system, sans-serif;
+      background: linear-gradient(135deg, #0f0f23 0%, #1a1a2e 100%);
+      color: white;
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: #888;
+      font-size: 1.2rem;
+      margin-bottom: 40px;
+    }
+
+    .examples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .example-card {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      padding: 24px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s, border-color 0.2s;
+      text-decoration: none;
+      color: white;
+      display: block;
+    }
+
+    .example-card:hover {
+      transform: translateY(-4px);
+      border-color: #667eea;
+    }
+
+    .example-icon {
+      font-size: 2.5rem;
+      margin-bottom: 16px;
+    }
+
+    .example-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .example-desc {
+      color: #888;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+
+    .example-tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(102, 126, 234, 0.2);
+      color: #667eea;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      margin-top: 12px;
+    }
+
+    .api-section {
+      margin-top: 60px;
+      padding-top: 40px;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    h2 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    pre {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 20px;
+      border-radius: 12px;
+      overflow-x: auto;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    code { color: #a5d6ff; }
+    .keyword { color: #ff7b72; }
+    .string { color: #a5d6ff; }
+    .comment { color: #8b949e; }
+    .function { color: #d2a8ff; }
+    .number { color: #79c0ff; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>MMS Layout Examples</h1>
+    <p class="subtitle">FLIP-style layout animations made easy</p>
+
+    <div class="examples-grid">
+      <a href="layout-basic.html" class="example-card">
+        <div class="example-icon">📐</div>
+        <div class="example-title">Basic Grid</div>
+        <div class="example-desc">
+          Simple grid layout with shuffle and expand animations.
+          Click items to expand them.
+        </div>
+        <span class="example-tag">Beginner</span>
+      </a>
+
+      <a href="layout-todo-list.html" class="example-card">
+        <div class="example-icon">✅</div>
+        <div class="example-title">Todo List</div>
+        <div class="example-desc">
+          Complete todo app with add, remove, toggle, and filter animations.
+        </div>
+        <span class="example-tag">Intermediate</span>
+      </a>
+
+      <a href="layout-gallery.html" class="example-card">
+        <div class="example-icon">🖼️</div>
+        <div class="example-title">Photo Gallery</div>
+        <div class="example-desc">
+          Image gallery with featured items, column controls, and shuffle.
+        </div>
+        <span class="example-tag">Intermediate</span>
+      </a>
+
+      <a href="layout-cards.html" class="example-card">
+        <div class="example-icon">👥</div>
+        <div class="example-title">Team Cards</div>
+        <div class="example-desc">
+          Team member cards with staggered animations, sorting, and filtering.
+        </div>
+        <span class="example-tag">Advanced</span>
+      </a>
+    </div>
+
+    <div class="api-section">
+      <h2>Quick Start</h2>
+      <pre><code><span class="keyword">import</span> { createLayout } <span class="keyword">from</span> <span class="string">'mms'</span>;
+
+<span class="comment">// Create layout instance</span>
+<span class="keyword">const</span> layout = <span class="function">createLayout</span>(<span class="string">'#container'</span>, {
+  children: <span class="string">'.item'</span>,
+  duration: <span class="number">500</span>,
+  ease: <span class="string">'outExpo'</span>,
+  enterFrom: { opacity: <span class="number">0</span>, scale: <span class="number">0.8</span> },
+  leaveTo: { opacity: <span class="number">0</span>, scale: <span class="number">0.8</span> },
+});
+
+<span class="comment">// Before making DOM changes</span>
+layout.<span class="function">record</span>();
+
+<span class="comment">// Make your DOM changes...</span>
+container.<span class="function">appendChild</span>(newElement);
+item.<span class="function">remove</span>();
+
+<span class="comment">// Animate to new layout</span>
+layout.<span class="function">animate</span>();</code></pre>
+    </div>
+
+    <div class="api-section">
+      <h2>Using update() shorthand</h2>
+      <pre><code><span class="comment">// Combines record() and animate()</span>
+layout.<span class="function">update</span>(() => {
+  <span class="comment">// Make DOM changes inside callback</span>
+  items.<span class="function">sort</span>((a, b) => a.order - b.order);
+  <span class="function">renderItems</span>();
+});</code></pre>
+    </div>
+
+    <div class="api-section">
+      <h2>Configuration Options</h2>
+      <pre><code><span class="function">createLayout</span>(root, {
+  <span class="comment">// Target children to animate</span>
+  children: <span class="string">'.item'</span>,       <span class="comment">// CSS selector or '*' for all</span>
+
+  <span class="comment">// Animation timing</span>
+  duration: <span class="number">500</span>,            <span class="comment">// ms or function</span>
+  delay: <span class="number">0</span>,                 <span class="comment">// ms or stagger()</span>
+  ease: <span class="string">'outExpo'</span>,          <span class="comment">// easing function</span>
+
+  <span class="comment">// Enter animation (new elements)</span>
+  enterFrom: {
+    opacity: <span class="number">0</span>,
+    translateY: <span class="number">20</span>,
+    scale: <span class="number">0.9</span>,
+  },
+
+  <span class="comment">// Leave animation (removed elements)</span>
+  leaveTo: {
+    opacity: <span class="number">0</span>,
+    translateY: <span class="number">-20</span>,
+    scale: <span class="number">0.9</span>,
+  },
+
+  <span class="comment">// Swap animation (elements changing position)</span>
+  swapAt: {
+    opacity: <span class="number">0.5</span>,
+    scale: <span class="number">0.95</span>,
+  },
+
+  <span class="comment">// CSS properties to animate</span>
+  properties: [<span class="string">'backgroundColor'</span>, <span class="string">'borderRadius'</span>],
+
+  <span class="comment">// Callbacks</span>
+  onComplete: (timeline) => {},
+});</code></pre>
+    </div>
+  </div>
+</body>
+</html>

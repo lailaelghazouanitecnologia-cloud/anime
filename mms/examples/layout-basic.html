@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Layout - Basic Example</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: system-ui, sans-serif; padding: 20px; background: #1a1a2e; color: white; }
+    h1 { margin-bottom: 20px; }
+
+    .container {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      max-width: 600px;
+    }
+
+    .item {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 20px;
+      border-radius: 8px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+
+    .item:hover { transform: scale(1.02); }
+
+    .item.expanded {
+      grid-column: span 2;
+      grid-row: span 2;
+    }
+
+    .controls {
+      margin: 20px 0;
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 5px;
+      background: #667eea;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    button:hover { background: #5a6fd6; }
+  </style>
+</head>
+<body>
+  <h1>Layout - Basic Grid Animation</h1>
+
+  <div class="controls">
+    <button id="shuffle">Shuffle Items</button>
+    <button id="toggle">Toggle Expand</button>
+  </div>
+
+  <div class="container" id="grid">
+    <div class="item" data-id="1">Item 1</div>
+    <div class="item" data-id="2">Item 2</div>
+    <div class="item" data-id="3">Item 3</div>
+    <div class="item" data-id="4">Item 4</div>
+    <div class="item" data-id="5">Item 5</div>
+    <div class="item" data-id="6">Item 6</div>
+  </div>
+
+  <script type="module">
+    import { createLayout } from '../src/layout/index.ts';
+
+    // Create layout instance
+    const layout = createLayout('#grid', {
+      children: '.item',
+      duration: 500,
+      ease: 'outExpo',
+      enterFrom: { opacity: 0, scale: 0.8 },
+      leaveTo: { opacity: 0, scale: 0.8 },
+    });
+
+    // Shuffle items
+    document.getElementById('shuffle').addEventListener('click', () => {
+      layout.record();
+
+      const grid = document.getElementById('grid');
+      const items = [...grid.children];
+
+      // Fisher-Yates shuffle
+      for (let i = items.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        grid.appendChild(items[j]);
+        [items[i], items[j]] = [items[j], items[i]];
+      }
+
+      layout.animate();
+    });
+
+    // Toggle expand on first item
+    document.getElementById('toggle').addEventListener('click', () => {
+      layout.record();
+      document.querySelector('.item').classList.toggle('expanded');
+      layout.animate();
+    });
+
+    // Click to toggle individual items
+    document.querySelectorAll('.item').forEach(item => {
+      item.addEventListener('click', () => {
+        layout.record();
+        item.classList.toggle('expanded');
+        layout.animate();
+      });
+    });
+  </script>
+</body>
+</html>
